@@ -1,0 +1,18 @@
+# 原始 omlx 服务端日志摘录 — 缓存对齐优化前后铁证
+# 来源: ~/.omlx/logs/server.log (本地 OpenAI 兼容推理服务, 模型 DeepSeek-V4-Flash)
+# 说明: cached=N 为命中前缀 token, suffix=M 为需重算 token
+
+===== 优化前 (BUG 复现): 压缩请求前缀分叉, 命中率 ~10% =====
+[2026-10-26 13:58:52] 压缩请求 4e556066:
+2026-10-26 13:58:52,193 - omlx.scheduler - INFO - [-] - Prefix cache restore for 4e556066-a78c-4cce-adc3-7c3899fa043e: source=paged cached=8192 suffix=72986 blocks=4 lookup=1.000ms reconstruct=13.228ms promote=True
+2026-10-26 13:58:52,194 - omlx.scheduler - INFO - [-] - prefix cache: request 4e556066-a78c-4cce-adc3-7c3899fa043e re-prefills 72986 of 81178 tokens (reused 8192); closest stored sequence ff5feaff-dc62-4b90-badc-ca2395715c96 shares the first 8886 of 80606 comparable tokens before diverging
+2026-10-26 14:03:11,127 - omlx.scheduler - INFO - [-] - Using boundary cache snapshot for 4e556066-a78c-4cce-adc3-7c3899fa043e: storing 81920/83574 tokens (block aligned, 35 intermediate snapshots)
+
+对照: 压缩前最后一个正常请求(同会话) — 命中率 ~99.5%
+2026-10-26 13:57:10,116 - omlx.scheduler - INFO - [-] - Prefix cache restore for ff5feaff-dc62-4b90-badc-ca2395715c96: source=paged cached=80226 suffix=382 blocks=40 lookup=3.501ms reconstruct=156.808ms promote=True
+
+===== 优化后 (FIXED): 压缩请求前缀对齐, 命中率 ~99% =====
+[复现1 15:08 会话ff5b]
+2026-10-26 14:55:41,661 - omlx.scheduler - INFO - [-] - Prefix cache restore for 63ab27d1-4015-4ca4-892e-4ca3d2a83719: source=paged cached=144165 suffix=627 blocks=71 lookup=5.591ms reconstruct=305.203ms promote=True
+[复现2 15:06 新会话68a8, 独立验证]
+2026-10-26 15:06:58,519 - omlx.scheduler - INFO - [-] - Prefix cache restore for df7ed738-5745-477f-8802-8c97fabf2c5b: source=paged cached=118898 suffix=1759 blocks=59 lookup=4.768ms reconstruct=735.413ms promote=True
