@@ -1,5 +1,8 @@
 # The Context-Compaction Cache Stampede
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23661079.svg)](https://doi.org/10.5281/zenodo.23661079)
+
+
 > **Why LLM agents silently re-prefill tens of thousands of tokens on every context compression — and the one-line fix that restores KV-cache hit rate from 10% to 99%.**
 
 A field-verified finding + reproduction kit for a failure mode that affects **any LLM agent that does background context compaction on top of prefix/prompt caching**.
@@ -107,3 +110,10 @@ Two independent sessions (one new, unrelated session with a different system hea
 Released for the benefit of the agent-infra community. If this saves you a 200-second stall, a citation or a link back is appreciated.
 
 *Measured on a local OpenAI-compatible inference server (oMLX) serving a 600B-class MoE with MTP speculative decoding. Model/provider names are incidental — the finding is model-agnostic and holds for any prefix-caching server.*
+
+
+---
+
+## How to cite
+
+> Yan, Su. (2026). *The Context-Compaction Cache Stampede: agent context compaction collapses KV/prefix cache hit rates (10% → 99.6%)* (v1.0.0) [Software]. Zenodo. https://doi.org/10.5281/zenodo.23661079
